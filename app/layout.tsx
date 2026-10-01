@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -11,10 +11,15 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image", title: "Md. Naimul Haque Tashin", description: "CSE student, web developer, and aspiring researcher.", images: ["/images/profile.png"] },
   appleWebApp: { capable: true, title: "Tashin Portfolio", statusBarStyle: "black-translucent" },
   icons: {
-    icon: [{ url: "/icons/icon-192.svg", type: "image/svg+xml", sizes: "192x192" }],
-    apple: [{ url: "/icons/icon-192.svg", type: "image/svg+xml", sizes: "192x192" }]
+    icon: [
+      { url: "/icons/favicon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/icons/icon-192.svg", type: "image/svg+xml", sizes: "192x192" }
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", type: "image/png", sizes: "180x180" }]
   }
 };
+
+export const viewport: Viewport = { themeColor: "#a78bfa" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return <html lang="en"><body>{children}</body></html>;

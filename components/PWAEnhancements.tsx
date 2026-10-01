@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Download, X } from "lucide-react";
 
 interface InstallPromptEvent extends Event {
@@ -11,29 +11,56 @@ interface InstallPromptEvent extends Event {
 export default function PWAEnhancements() {
   const [installEvent, setInstallEvent] = useState<InstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
+  const dismissedRef = useRef(false);
 
   useEffect(() => {
-    if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js", { scope: "/" }).catch(() => undefined);
+    // Test offline behavior with `npm run build` and `npm start`; avoid caching dev bundles.
+    if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" }).catch(error => console.warn("Portfolio service worker registration failed:", error));
+    }
     const standalone = window.matchMedia("(display-mode: standalone)").matches || ("standalone" in navigator && Boolean((navigator as Navigator & { standalone?: boolean }).standalone));
-    if (standalone || sessionStorage.getItem("tashin-install-dismissed")) return;
+    let dismissed = false;
+    try { dismissed = Boolean(sessionStorage.getItem("tashin-install-dismissed")); } catch { /* Storage can be unavailable in private browsing. */ }
+    if (standalone || dismissed) return;
+    let timer: number | undefined;
+    let installed = false;
     const onBeforeInstall = (event: Event) => {
       event.preventDefault();
+      if (dismissedRef.current || installed) return;
+      window.clearTimeout(timer);
       setInstallEvent(event as InstallPromptEvent);
-      window.setTimeout(() => setVisible(true), 1800);
+      timer = window.setTimeout(() => setVisible(true), 1800);
     };
-    const onInstalled = () => { setVisible(false); setInstallEvent(null); };
+    const onInstalled = () => {
+      installed = true;
+      window.clearTimeout(timer);
+      setVisible(false);
+      setInstallEvent(null);
+    };
     window.addEventListener("beforeinstallprompt", onBeforeInstall);
     window.addEventListener("appinstalled", onInstalled);
-    return () => { window.removeEventListener("beforeinstallprompt", onBeforeInstall); window.removeEventListener("appinstalled", onInstalled); };
+    return () => { window.clearTimeout(timer); window.removeEventListener("beforeinstallprompt", onBeforeInstall); window.removeEventListener("appinstalled", onInstalled); };
   }, []);
 
-  const dismiss = () => { sessionStorage.setItem("tashin-install-dismissed", "1"); setVisible(false); };
+  const dismiss = () => {
+    dismissedRef.current = true;
+    try { sessionStorage.setItem("tashin-install-dismissed", "1"); } catch { /* Dismissal still works without storage. */ }
+    setVisible(false);
+    setInstallEvent(null);
+  };
   const install = async () => {
     if (!installEvent) return;
-    await installEvent.prompt();
-    const choice = await installEvent.userChoice;
-    if (choice.outcome === "accepted") setVisible(false);
+    const event = installEvent;
+    setVisible(false);
     setInstallEvent(null);
+    try {
+      await event.prompt();
+      const choice = await event.userChoice;
+      if (choice.outcome === "dismissed") {
+        dismissedRef.current = true;
+        try { sessionStorage.setItem("tashin-install-dismissed", "1"); } catch { /* Storage is optional. */ }
+      }
+    } catch { /* A consumed or unavailable browser prompt must not break the page. */ }
   };
 
   if (!visible || !installEvent) return null;
