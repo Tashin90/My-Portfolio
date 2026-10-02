@@ -1,20 +1,71 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ArrowUpRight, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { portfolio, type Project } from "@/data/portfolio";
+import { InteractiveCard } from "@/components/InteractiveCard";
 import { Reveal } from "@/components/Reveal";
+import { SectionHeading } from "@/components/SectionHeading";
+import styles from "./PortfolioSections.module.css";
 
 const filters = ["All", "Web", "Java", "C#", "C++", "Academic"];
 
+function ProjectVisual({ project, index }: { project: Project; index: number }) {
+  return (
+    <div className={styles.projectVisual} aria-label={`Abstract visual for ${project.title}; no project screenshot is available`}>
+      <div className={styles.visualGrid}/>
+      <div className={styles.visualOrb}/>
+      <span className={styles.projectCode}>{String(index + 1).padStart(2, "0")}</span>
+      <div className={styles.visualMeta}><span>{project.category} / {project.type}</span><span>System concept</span></div>
+    </div>
+  );
+}
+
 function ProjectCard({ project, index }: { project: Project; index: number }) {
   const featured = project.featured;
-  return <motion.article layout className={`project-card group relative overflow-hidden rounded-2xl border bg-[#0d1324] ${featured ? "border-violet-300/35 shadow-[0_0_60px_rgba(124,58,237,.14)] lg:col-span-2" : "border-white/10"}`}><div className={`project-visual relative overflow-hidden bg-gradient-to-br ${featured ? "min-h-[260px] lg:min-h-[380px]" : "min-h-[205px]"} ${project.accent === "violet" ? "from-violet-500/25 via-[#172047] to-[#0d1324]" : project.accent === "cyan" ? "from-cyan-400/20 via-[#112d3d] to-[#0d1324]" : project.accent === "blue" ? "from-blue-500/20 via-[#172342] to-[#0d1324]" : "from-fuchsia-400/15 via-[#251735] to-[#0d1324]"}`}><div className="absolute inset-0 opacity-30" style={{ backgroundImage: "radial-gradient(circle at 20% 20%, rgba(255,255,255,.5) 1px, transparent 1px)", backgroundSize: "20px 20px" }}/><div className="absolute -right-16 -top-16 h-48 w-48 rounded-full border border-white/10"/><div className="absolute -right-6 top-8 h-32 w-32 rounded-full border border-white/10"/><div className="absolute bottom-5 left-6 font-mono text-7xl font-bold tracking-[-.1em] text-white/[.07]">0{index + 1}</div>{featured && <span className="absolute left-6 top-6 rounded-full border border-violet-200/40 bg-violet-200/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-violet-100">Featured project</span>}<span className="absolute right-6 top-6 rounded-full border border-white/15 bg-black/10 px-3 py-1.5 font-mono text-[10px] uppercase tracking-wider text-white/60">{project.category}</span></div><div className="flex flex-col p-6 sm:p-8"><div className="flex items-start justify-between gap-4"><div><p className="font-mono text-[10px] uppercase tracking-widest text-violet-200">{project.type} project</p><h3 className="mt-3 text-2xl font-medium tracking-[-.04em] text-white">{project.title}</h3><p className="mt-4 max-w-xl text-sm leading-7 text-slate-400">{project.description}</p></div><ArrowUpRight className="shrink-0 text-slate-600 transition group-hover:-translate-y-1 group-hover:text-violet-200" size={22}/></div><div className="mt-7 flex flex-wrap gap-2">{project.stack.map(item => <span key={item} className="rounded-md bg-white/[.06] px-2.5 py-1.5 font-mono text-[10px] text-slate-300">{item}</span>)}</div><div className="mt-7 flex items-center justify-between border-t border-white/10 pt-5"><span className="font-mono text-[10px] uppercase tracking-widest text-slate-600">{featured ? "Primary featured work" : "Selected work"}</span><a href={project.repo} target="_blank" rel="noreferrer" className="focus-ring inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:border-violet-300/40 hover:bg-violet-300/10 hover:text-white">View on GitHub <ExternalLink size={14}/></a></div></div></motion.article>;
+  const study = featured ? portfolio.gamingStoreCaseStudy : null;
+  return (
+    <InteractiveCard className={`${styles.projectCard} ${featured ? styles.featuredProject : ""}`} ariaLabel={`${project.title} project`}>
+      <ProjectVisual project={project} index={index}/>
+      <div className={styles.projectContent}>
+        <span className={styles.projectType}>{featured ? "Primary featured work" : `${project.type} project`}</span>
+        <h3>{project.title}</h3>
+        <p>{project.description}</p>
+        {study && <p><strong>Goal:</strong> {study.goal}</p>}
+        <div className={styles.projectStack}>{project.stack.map(item => <span key={item}>{item}</span>)}</div>
+        <div className={styles.projectActions}>
+          <span>{study?.status ?? "Selected portfolio work"}</span>
+          <a href={project.repo} target="_blank" rel="noreferrer" className={`${styles.actionLink} focus-ring`}>GitHub repository <ExternalLink size={14}/></a>
+        </div>
+      </div>
+    </InteractiveCard>
+  );
 }
 
 export default function Projects() {
   const [filter, setFilter] = useState("All");
   const visible = useMemo(() => portfolio.projects.filter(project => filter === "All" || project.category === filter || project.type === filter), [filter]);
-  return <section id="projects" className="section-pad"><div className="container-x"><div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end"><div><p className="section-kicker">03 / Selected work</p><h2 className="mt-4 text-3xl font-semibold tracking-[-.05em] text-white sm:text-5xl">Featured Projects</h2><p className="mt-5 max-w-xl leading-7 text-slate-400">A selection of projects that reflect what I&apos;m building, learning, and exploring.</p></div><div className="flex flex-wrap gap-2" role="group" aria-label="Filter projects">{filters.map(item => <button type="button" key={item} onClick={() => setFilter(item)} className={`focus-ring rounded-full border px-3.5 py-2 text-xs transition ${filter === item ? "border-violet-200 bg-violet-200 text-slate-950" : "border-white/10 text-slate-400 hover:border-violet-300/40 hover:text-white"}`}>{item}</button>)}</div></div><motion.div layout className="mt-12 grid gap-5 lg:grid-cols-2"><AnimatePresence mode="popLayout">{visible.map((project, index) => <Reveal key={project.title}><ProjectCard project={project} index={index}/></Reveal>)}</AnimatePresence></motion.div></div></section>;
+
+  return (
+    <section id="projects" data-omega-section className={styles.section}>
+      <div className="container-x">
+        <div className={styles.sectionToolbar}>
+          <Reveal direction="left"><SectionHeading number="03" eyebrow="Premium showcase" title="Projects with practical learning value." body="Verified academic and practical projects, presented with their real descriptions, technology stacks, and repository links."/></Reveal>
+          <div className={styles.filterGroup} role="group" aria-label="Filter projects">
+            {filters.map(item => <button type="button" key={item} aria-pressed={filter === item} data-active={filter === item} onClick={() => setFilter(item)} className={`${styles.filterButton} focus-ring`}>{item}</button>)}
+          </div>
+        </div>
+        <motion.div layout className={styles.projectGrid}>
+          <AnimatePresence mode="popLayout" initial={false}>
+            {visible.map((project, index) => (
+              <motion.div className={project.featured ? styles.featuredProjectWrap : ""} layout key={project.title} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: .98 }} transition={{ duration: .32 }}>
+                <ProjectCard project={project} index={portfolio.projects.indexOf(project)}/>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+      </div>
+    </section>
+  );
 }

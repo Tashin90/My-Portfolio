@@ -5,13 +5,14 @@ import { motion, useReducedMotion } from "framer-motion";
 import { portfolio } from "@/data/portfolio";
 import { Icon } from "@/components/Icon";
 import { Reveal } from "@/components/Reveal";
+import styles from "./PortfolioSections.module.css";
 
 export function TechMarquee() {
   const items = [...portfolio.techStack, ...portfolio.techStack];
   const reduced = useReducedMotion();
-  return <section aria-label="Technology stack" className="overflow-hidden border-y border-white/[.06] bg-[#080d1b] py-5">
-    <div className="container-x flex items-center gap-5"><span className="hidden shrink-0 font-mono text-[10px] uppercase tracking-[.2em] text-violet-200 sm:block">Working stack</span><div className="relative min-w-0 overflow-hidden"><motion.div className="flex w-max gap-2" animate={reduced ? undefined : { x: [0, -680] }} transition={reduced ? undefined : { duration: 32, repeat: Infinity, ease: "linear" }}>
-      {items.map((item, index) => <span key={`${item}-${index}`} className="rounded-full border border-white/10 bg-white/[.035] px-3 py-2 font-mono text-[10px] text-slate-300">{item}</span>)}
+  return <section aria-label="Technology stack" className={styles.marquee}>
+    <div className={`container-x ${styles.marqueeInner}`}><span className={styles.marqueeLabel}>Working stack</span><div className={styles.marqueeTrack}><motion.div className="flex w-max gap-2" animate={reduced ? undefined : { x: [0, -680] }} transition={reduced ? undefined : { duration: 32, repeat: Infinity, ease: "linear" }}>
+      {items.map((item, index) => <span key={`${item}-${index}`} className={styles.marqueeItem}>{item}</span>)}
     </motion.div></div></div>
   </section>;
 }

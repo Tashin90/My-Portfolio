@@ -1,15 +1,76 @@
 import { portfolio } from "@/data/portfolio";
 import { Icon } from "@/components/Icon";
+import { InteractiveCard } from "@/components/InteractiveCard";
 import { Reveal } from "@/components/Reveal";
+import { SectionHeading } from "@/components/SectionHeading";
+import styles from "./PortfolioSections.module.css";
 
-function Heading({ kicker, title, body }: { kicker: string; title: string; body?: string }) {
-  return <div className="mb-12 max-w-2xl"><p className="section-kicker">{kicker}</p><h2 className="mt-4 text-3xl font-semibold tracking-[-.05em] text-white sm:text-5xl">{title}</h2>{body && <p className="mt-5 leading-7 text-slate-400">{body}</p>}</div>;
+const marks: Record<string, string> = {
+  "C#": "C#", "C++": "C++", Java: "JV", JavaScript: "JS", SQL: "SQL",
+  HTML: "H5", CSS: "C3", React: "RE", "Next.js": "NX", "Tailwind CSS": "TW",
+  "Data Structures": "DS", Algorithms: "AL", "Object-Oriented Programming": "OO", "Problem Solving": "PS",
+  "SQL Server": "MS", MySQL: "MY", SQLite: "SQ", Git: "GT", GitHub: "GH",
+  "VS Code": "VS", "Visual Studio": "V#", "Machine Learning": "ML", AI: "AI", "REST APIs": "API", Research: "RS"
+};
+
+function TechnologyMark({ name }: { name: string }) {
+  return <span className={styles.techMark} aria-hidden="true">{marks[name] ?? name.slice(0, 2).toUpperCase()}</span>;
 }
 
 export function About() {
-  return <section id="about" className="section-pad"><div className="container-x grid gap-12 lg:grid-cols-[.85fr_1.15fr]"><Reveal><Heading kicker="01 / About me" title="Curious by default. Practical by design."/><div className="flex items-center gap-3 font-mono text-xs text-slate-500"><span className="h-px w-8 bg-violet-300"/>{portfolio.role}</div></Reveal><Reveal><div className="grid gap-4 sm:grid-cols-2"><div className="rounded-2xl border border-white/10 bg-white/[.025] p-6 sm:col-span-2"><p className="text-lg leading-8 text-slate-300">I&apos;m a CSE student at <span className="text-white">{portfolio.university}</span>, learning by building and by understanding how software works beneath the surface. My current path sits at the intersection of web development, software engineering fundamentals, and academic curiosity.</p></div><div className="rounded-2xl border border-white/10 bg-[#0d1324] p-6"><p className="font-mono text-[10px] uppercase tracking-widest text-violet-200">What I build</p><p className="mt-5 text-sm leading-7 text-slate-400">Interfaces, coursework projects, desktop applications, and practical systems that turn concepts into something tangible.</p></div><div className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[.04] p-6"><p className="font-mono text-[10px] uppercase tracking-widest text-cyan-200">Currently exploring</p><div className="mt-5 flex flex-wrap gap-2">{portfolio.interests.slice(0, 5).map(item => <span key={item} className="rounded-full border border-cyan-300/15 px-3 py-1.5 text-xs text-slate-300">{item}</span>)}</div></div></div></Reveal></div></section>;
+  return (
+    <section id="about" data-omega-section className={styles.section}>
+      <div className="container-x">
+        <Reveal><SectionHeading number="01" eyebrow="Holographic identity" title="Curious by default. Practical by design." body="A grounded introduction to the person, education, and direction behind the work."/></Reveal>
+        <div className={styles.aboutGrid}>
+          <Reveal direction="left">
+            <InteractiveCard className={styles.bioPanel} ariaLabel="About Md. Naimul Haque Tashin">
+              <span className={styles.bioLabel}><i/>Identity profile / verified</span>
+              <h3>Building software while strengthening the foundations underneath it.</h3>
+              <p>I&apos;m a CSE student at <strong>{portfolio.university}</strong>, learning by building and by understanding how software works beneath the surface. My current path sits at the intersection of web development, software engineering fundamentals, and academic curiosity.</p>
+              <div className={styles.identityTrack}>
+                <span>Academic identity</span>
+                <div className={styles.trackLine}><i className={styles.trackNode}/><div><h4>Computer Science &amp; Engineering</h4><p>{portfolio.university}</p></div></div>
+                <div className={styles.trackLine}><i className={styles.trackNode}/><div><h4>Learning through practical systems</h4><p>Web interfaces, academic software, programming fundamentals, and research exploration.</p></div></div>
+              </div>
+            </InteractiveCard>
+          </Reveal>
+          <div className={styles.identityCards}>
+            {portfolio.infoCards.map((card, index) => (
+              <Reveal key={card.label} delay={index * .06} direction={index % 2 ? "right" : "up"}>
+                <InteractiveCard className={styles.identityCard} ariaLabel={`${card.label}: ${card.value}`}>
+                  <span className={styles.cardIcon}><Icon name={card.icon} size={18}/></span>
+                  <small>{card.label}</small>
+                  <h3>{card.value}</h3>
+                  <p>{card.detail}</p>
+                </InteractiveCard>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 export function Skills() {
-  return <section id="skills" className="section-pad border-y border-white/[.06] bg-[#0a0e1b]"><div className="container-x"><Heading kicker="02 / Skills & technologies" title="A growing toolkit, mapped to the work." body="A practical view of the languages, concepts, and tools I am using or learning—without artificial proficiency scores."/><div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{portfolio.skills.map((skill, index) => <Reveal key={skill.title} delay={index * .04}><article className="skill-card h-full rounded-2xl border border-white/10 bg-[#0d1324] p-6 transition hover:-translate-y-1 hover:border-violet-300/35"><div className="flex items-start justify-between gap-4"><span className="flex h-10 w-10 items-center justify-center rounded-xl border border-violet-300/20 bg-violet-300/10 text-violet-200"><Icon name={skill.icon}/></span><span className="font-mono text-[10px] text-slate-600">0{index + 1}</span></div><h3 className="mt-6 text-lg font-medium text-white">{skill.title}</h3><p className="mt-3 min-h-12 text-sm leading-6 text-slate-500">{skill.description}</p><div className="mt-6 flex flex-wrap gap-2">{skill.items.map(item => <span key={item} className="rounded-lg border border-white/10 bg-white/[.035] px-2.5 py-1.5 font-mono text-[11px] text-slate-300">{item}</span>)}</div></article></Reveal>)}</div></div></section>;
+  return (
+    <section id="skills" data-omega-section className={`${styles.section} ${styles.sectionAlt}`}>
+      <div className="container-x">
+        <Reveal><SectionHeading number="02" eyebrow="Technology matrix" title="A toolkit mapped to real work." body="Languages, concepts, databases, and tools currently used or actively explored—without artificial proficiency scores."/></Reveal>
+        <div className={styles.skillsGrid}>
+          {portfolio.skills.map((skill, index) => (
+            <Reveal key={skill.title} delay={index * .055} direction={index % 3 === 0 ? "left" : index % 3 === 2 ? "right" : "up"}>
+              <InteractiveCard className={styles.skillCard} ariaLabel={skill.title}>
+                <div className={styles.skillTop}><span className={styles.cardIcon}><Icon name={skill.icon} size={19}/></span><span>MATRIX / {String(index + 1).padStart(2, "0")}</span></div>
+                <h3>{skill.title}</h3>
+                <p>{skill.description}</p>
+                <div className={styles.techList}>{skill.items.map(item => <span className={styles.techItem} key={item}><TechnologyMark name={item}/>{item}</span>)}</div>
+              </InteractiveCard>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }

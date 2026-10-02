@@ -1,33 +1,195 @@
 "use client";
 
-import { FormEvent } from "react";
-import { ArrowUpRight } from "lucide-react";
+import { FormEvent, useState } from "react";
+import { ArrowUpRight, ExternalLink, LoaderCircle, Send } from "lucide-react";
 import { portfolio } from "@/data/portfolio";
 import { Icon } from "@/components/Icon";
+import { InteractiveCard } from "@/components/InteractiveCard";
 import { Reveal } from "@/components/Reveal";
+import { SectionHeading } from "@/components/SectionHeading";
+import styles from "./PortfolioSections.module.css";
 
-const Heading = ({ kicker, title, body }: { kicker: string; title: string; body?: string }) => <div className="mb-12 max-w-2xl"><p className="section-kicker">{kicker}</p><h2 className="mt-4 text-3xl font-semibold tracking-[-.05em] text-white sm:text-5xl">{title}</h2>{body && <p className="mt-5 leading-7 text-slate-400">{body}</p>}</div>;
+const buildingDetails = portfolio.currentlyBuilding.map(item => {
+  const project = portfolio.projects.find(candidate => candidate.title === item.title);
+  return { ...item, repo: project?.repo, stack: project?.stack ?? (item.title.includes("Research") ? ["Research Methodology"] : []) };
+});
 
 export function CurrentlyBuilding() {
-  const items = portfolio.currentlyBuilding;
-  return <section className="section-pad border-y border-white/[.06] bg-[#080d1b]"><div className="container-x"><Heading kicker="06 / In progress" title="Currently Building" body="A small view of the work and questions currently shaping my learning path."/><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{items.map((item, index) => <Reveal key={item.title} delay={index * .04}><article className="building-card group h-full rounded-2xl border border-white/10 bg-white/[.025] p-5 transition hover:-translate-y-1 hover:border-cyan-300/30"><div className="flex items-start justify-between"><span className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-300/20 bg-cyan-300/10 text-cyan-200 transition group-hover:scale-105"><Icon name={item.icon}/></span><span className="rounded-full border border-cyan-300/15 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-cyan-200">{item.status}</span></div><h3 className="mt-8 text-base font-medium text-white">{item.title}</h3><p className="mt-3 text-sm leading-6 text-slate-500">{item.text}</p></article></Reveal>)}</div></div></section>;
-}
-
-export function EducationJourney() {
-  return <><section className="section-pad"><div className="container-x grid gap-14 lg:grid-cols-[.8fr_1.2fr]"><Reveal><Heading kicker="05 / Education" title="Grounded in computer science." body="An academic path built around fundamentals, projects, and a willingness to keep learning."/></Reveal><Reveal><div className="relative rounded-2xl border border-violet-300/20 bg-[#0d1324] p-7 sm:p-9"><div className="absolute left-0 top-10 h-16 w-1 rounded-r-full bg-violet-300"/><div className="flex items-start justify-between gap-6"><div><p className="font-mono text-xs uppercase tracking-widest text-violet-200">Current · Bachelor</p><h3 className="mt-5 text-2xl font-medium text-white">Computer Science & Engineering</h3><p className="mt-3 text-slate-300">{portfolio.university}</p></div><Icon name="graduation" size={30}/></div><div className="mt-10 grid gap-3 border-t border-white/10 pt-5 text-sm text-slate-400 sm:grid-cols-2"><span>Relevant areas</span><span className="text-slate-200 sm:text-right">Web · OOP · Algorithms · Research</span><span>Current status</span><span className="text-slate-200 sm:text-right">Actively learning and building</span></div></div></Reveal></div></section><section id="journey" className="section-pad border-y border-white/[.06] bg-[#0a0e1b]"><div className="container-x grid gap-14 lg:grid-cols-[.8fr_1.2fr]"><Reveal><Heading kicker="06 / The journey" title="Learning & Building Journey" body="No invented job titles—just the real progression of concepts, projects, and questions I am working through."/></Reveal><div className="relative border-l border-white/15 pl-7">{portfolio.journey.map((item, index) => <Reveal key={item.title} delay={index * .04}><div className="relative mb-9 last:mb-0"><span className="absolute -left-[33px] top-1 h-2.5 w-2.5 rounded-full border-2 border-violet-200 bg-[#0a0e1b]"/><p className="font-mono text-xs uppercase tracking-widest text-violet-200">{item.year}</p><h3 className="mt-2 text-lg font-medium text-white">{item.title}</h3><p className="mt-2 max-w-lg text-sm leading-6 text-slate-500">{item.text}</p></div></Reveal>)}</div></div></section></>;
+  return (
+    <section id="building" data-omega-section className={styles.section}>
+      <div className="container-x">
+        <Reveal><SectionHeading number="05" eyebrow="Development pipeline" title="Work and questions in motion." body="Documented projects and academic exploration currently shaping the next layer of my learning path."/></Reveal>
+        <div className={styles.pipeline}>
+          {buildingDetails.map((item, index) => (
+            <Reveal key={item.title} delay={index * .065} direction={index % 2 ? "right" : "left"}>
+              <InteractiveCard className={styles.pipelineCard} ariaLabel={`${item.title}, ${item.status}`}>
+                <div className={styles.pipelineTop}><span className={styles.pipelineNode}><Icon name={item.icon} size={18}/></span><span className={styles.statusBadge}>{item.status}</span></div>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+                {item.stack.length > 0 && <div className={styles.pipelineStack}>{item.stack.map(technology => <span key={technology}>{technology}</span>)}</div>}
+                {item.repo && <a href={item.repo} target="_blank" rel="noreferrer" className={`${styles.pipelineLink} focus-ring`}>Repository <ExternalLink size={12}/></a>}
+              </InteractiveCard>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }
 
 export function Achievements() {
-  return <section id="achievements" className="section-pad"><div className="container-x"><Heading kicker="07 / Honors" title="Achievements & Certifications" body="A small, verified record of academic and research milestones. No invented credentials or statistics."/><div className="grid gap-5 md:grid-cols-2">{portfolio.achievements.map((item, index) => { const featured = index === 1; return <Reveal key={item.title}><article className={`achievement-card h-full rounded-2xl border p-7 transition hover:-translate-y-1 ${featured ? "achievement-priority group" : "border-white/10 bg-[#0d1324] hover:border-violet-300/40"}`}><div className="relative z-10 flex items-start justify-between gap-4"><span className={`flex h-12 w-12 items-center justify-center rounded-2xl transition group-hover:scale-105 ${featured ? "achievement-award-icon" : "border border-violet-300/25 bg-violet-300/10 text-violet-100"}`}><Icon name="award"/></span>{featured ? <span className="achievement-badge rounded-full px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest">Dean&apos;s Award</span> : <span className="rounded-full border border-white/10 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-slate-500">{item.category}</span>}</div><h3 className={`relative z-10 mt-7 text-xl font-medium leading-tight ${featured ? "text-white sm:text-2xl" : "text-white"}`}>{featured ? <>Dean&apos;s Award for <span className="achievement-title-accent">Academic Excellence</span></> : item.title}</h3><p className={`relative z-10 mt-3 text-sm leading-6 ${featured ? "text-amber-50/80" : "text-slate-400"}`}>{item.issuer}</p><div className="relative z-10 mt-7 flex items-center justify-between gap-4 border-t border-white/10 pt-4"><span className={featured ? "achievement-year rounded-full px-3 py-1 font-mono text-sm font-bold" : "font-mono text-xs text-cyan-200"}>{item.date}</span><a href={portfolio.linkedin} target="_blank" rel="noreferrer" className={`focus-ring inline-flex items-center gap-1 rounded-lg px-3 py-2 text-xs font-semibold transition hover:-translate-y-0.5 ${featured ? "achievement-credential" : "bg-violet-200 text-slate-950 hover:bg-white"}`}>View Credential <ArrowUpRight size={13}/></a></div></article></Reveal>; })}</div></div></section>;
+  return (
+    <section id="achievements" data-omega-section className={`${styles.section} ${styles.sectionAlt}`}>
+      <div className="container-x">
+        <Reveal><SectionHeading number="06" eyebrow="Academic milestones" title="Verified progress, presented with context." body="A concise timeline of documented academic excellence and authorship—without invented credentials or statistics."/></Reveal>
+        <div className={styles.achievementTimeline}>
+          {portfolio.achievements.map((item, index) => {
+            const featured = item.category === "Academic Excellence";
+            return (
+              <Reveal key={item.title} delay={index * .1} direction="right">
+                <div className={styles.achievementItem}>
+                  <span className={styles.achievementNode}><Icon name="award" size={12}/></span>
+                  <InteractiveCard className={`${styles.achievementCard} ${featured ? styles.achievementFeatured : ""}`} ariaLabel={item.title}>
+                    <div className={styles.achievementHead}><span className={styles.achievementCategory}>{item.category}</span><span className={styles.achievementDate}>{item.date}</span></div>
+                    <h3>{item.title}</h3>
+                    <p>{item.issuer}</p>
+                    <a href={portfolio.linkedin} target="_blank" rel="noreferrer" className={`${styles.credentialLink} focus-ring`}>Verify on LinkedIn <ArrowUpRight size={13}/></a>
+                  </InteractiveCard>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
 }
 
-export function ResearchLearningServices() {
-  return <><section id="research" className="section-pad border-y border-white/[.06] bg-[#0a0e1b]"><div className="container-x"><Heading kicker="08 / Research & interests" title="Questions worth spending time on." body="I am interested in the space where solid computer science foundations meet useful products and meaningful research."/><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{portfolio.researchTopics.map((item, index) => <Reveal key={item.title} delay={index * .04}><article className="group h-full rounded-2xl border border-white/10 bg-[#0d1324] p-6 transition hover:-translate-y-1 hover:border-cyan-300/30"><span className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-300/20 bg-cyan-300/10 text-cyan-200 transition group-hover:scale-105"><Icon name={item.icon}/></span><h3 className="mt-7 text-lg font-medium text-white">{item.title}</h3><p className="mt-3 text-sm leading-6 text-slate-500">{item.text}</p></article></Reveal>)}</div></div></section><section id="learning" className="section-pad"><div className="container-x"><Heading kicker="09 / In progress" title="Currently Learning" body="A visible learning queue—progress measured by practice and understanding, not made-up percentages."/><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{portfolio.learning.map((item, index) => <Reveal key={item}><div className="group rounded-xl border border-white/10 bg-white/[.025] p-5 transition hover:border-violet-300/35"><div className="flex items-center justify-between"><span className="font-mono text-xs text-violet-200">0{index + 1}</span><span className="h-1.5 w-1.5 rounded-full bg-cyan-300 opacity-60 group-hover:opacity-100"/></div><p className="mt-8 text-sm font-medium text-slate-200">{item}</p></div></Reveal>)}</div></div></section><section id="services" className="section-pad border-y border-white/[.06] bg-[#0a0e1b]"><div className="container-x"><Heading kicker="10 / What I can build" title="Useful software, built at the right level." body="Student and junior-developer capabilities focused on clear scope, thoughtful interfaces, and steady learning."/><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{portfolio.services.map((item, index) => <Reveal key={item.title} delay={index * .04}><article className="rounded-2xl border border-white/10 bg-[#0d1324] p-6 transition hover:-translate-y-1 hover:border-violet-300/35"><span className="font-mono text-xs text-violet-200">0{index + 1}</span><h3 className="mt-12 text-lg font-medium text-white">{item.title}</h3><p className="mt-3 text-sm leading-6 text-slate-500">{item.text}</p></article></Reveal>)}</div></div></section></>;
+export function ResearchQualifications() {
+  return (
+    <section id="research" data-omega-section className={styles.section}>
+      <div className="container-x">
+        <Reveal><SectionHeading number="07" eyebrow="Research & qualifications" title="Academic curiosity, clearly labeled." body="Research interests remain exploratory unless documented otherwise. Qualifications and learning activity are presented separately from published work."/></Reveal>
+        <div className={styles.researchLayout}>
+          <Reveal direction="left">
+            <InteractiveCard className={styles.qualificationPanel} ariaLabel="Current academic qualification">
+              <span className={styles.cardIcon}><Icon name="graduation" size={20}/></span>
+              <h3>Computer Science &amp; Engineering</h3>
+              <p>{portfolio.university}</p>
+              <div className={styles.qualificationRows}>
+                <div><span>Level</span><strong>Current bachelor-level study</strong></div>
+                <div><span>Focus</span><strong>Web · OOP · Algorithms · Research</strong></div>
+                <div><span>Status</span><strong>Actively learning and building</strong></div>
+                <div><span>Location</span><strong>{portfolio.location}</strong></div>
+              </div>
+            </InteractiveCard>
+          </Reveal>
+          <div className={styles.researchGrid}>
+            {portfolio.researchTopics.map((item, index) => (
+              <Reveal key={item.title} delay={index * .045} direction={index % 2 ? "right" : "up"}>
+                <InteractiveCard className={styles.researchCard} ariaLabel={`${item.title}, exploratory interest`}>
+                  <div className={styles.researchStatus}><span className={styles.cardIcon}><Icon name={item.icon} size={18}/></span><span>{item.title === "Academic Research" ? "Learning" : "Exploratory interest"}</span></div>
+                  <h3>{item.title}</h3>
+                  <p>{item.text}</p>
+                </InteractiveCard>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+
+        <Reveal direction="up">
+          <div className={styles.learningPanel}>
+            <h3 className={styles.subheading}>Current learning queue</h3>
+            <div className={styles.learningQueue}>{portfolio.learning.map(item => <span key={item}>{item}</span>)}</div>
+            <div className={styles.journeyGrid}>{portfolio.journey.map(item => <div className={styles.journeyItem} key={`${item.year}-${item.title}`}><span>{item.year}</span><h4>{item.title}</h4><p>{item.text}</p></div>)}</div>
+          </div>
+        </Reveal>
+
+        <div className={styles.capabilityGrid}>
+          {portfolio.services.map((item, index) => <Reveal key={item.title} delay={index * .035}><div className={styles.capabilityItem}><span>{String(index + 1).padStart(2, "0")}</span><div><h3>{item.title}</h3><p>{item.text}</p></div></div></Reveal>)}
+        </div>
+      </div>
+    </section>
+  );
 }
+
+type FormErrors = Partial<Record<"name" | "email" | "subject" | "message", string>>;
 
 export function Contact() {
-  const submit = (event: FormEvent<HTMLFormElement>) => event.preventDefault();
-  return <section id="contact" className="contact-section section-pad text-white"><div className="container-x grid gap-12 lg:grid-cols-[.8fr_1.2fr]"><div><p className="font-mono text-xs uppercase tracking-widest text-violet-200">11 / Contact</p><h2 className="mt-5 text-4xl font-semibold leading-[.98] tracking-[-.06em] text-white sm:text-6xl">Let&apos;s build<br/>something useful.</h2><p className="mt-6 max-w-md leading-7 text-slate-400">Have an opportunity, a project idea, or a question about what I&apos;m learning? I&apos;d be happy to hear from you.</p><div className="mt-8 space-y-3 text-sm"><a href={portfolio.github} target="_blank" rel="noreferrer" className="flex items-center gap-3 text-violet-100 transition hover:text-violet-200 hover:underline"><Icon name="github" size={17}/>github.com/Tashin90</a><a href={portfolio.linkedin} target="_blank" rel="noreferrer" className="flex items-center gap-3 text-cyan-100 transition hover:text-cyan-200 hover:underline"><Icon name="linkedin" size={17}/>LinkedIn profile</a><a href={portfolio.email} className="flex items-center gap-3 text-teal-100 transition hover:text-teal-200 hover:underline"><Icon name="mail" size={17}/>{portfolio.emailLabel}</a></div></div><form onSubmit={submit} className="rounded-2xl border border-white/10 bg-[rgba(8,11,24,.88)] p-6 text-white shadow-2xl sm:p-8"><p className="font-mono text-xs uppercase tracking-widest text-violet-200">Send a note / TODO: connect email service</p><div className="mt-7 grid gap-5 sm:grid-cols-2">{[["Name","name","text"],["Email","email","email"],["Subject","subject","text"]].map(([label,name,type], index) => <label key={name} className={index === 2 ? "sm:col-span-2" : ""}><span className="mb-2 block text-xs text-slate-500">{label}</span><input required name={name} type={type} className="focus-ring w-full rounded-xl border border-white/10 bg-[#0b1020] px-3 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-300/60 focus:shadow-[0_0_20px_rgba(139,92,246,.14)]"/></label>)}<label className="sm:col-span-2"><span className="mb-2 block text-xs text-slate-500">Message</span><textarea required name="message" rows={5} className="focus-ring w-full resize-y rounded-xl border border-white/10 bg-[#0b1020] px-3 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-300/60 focus:shadow-[0_0_20px_rgba(139,92,246,.14)]"/></label></div><button className="mt-6 inline-flex items-center gap-2 rounded-xl border border-violet-300/25 bg-gradient-to-r from-violet-500/80 via-blue-500/75 to-cyan-500/70 px-5 py-3 text-sm font-semibold text-white shadow-[0_0_26px_rgba(99,102,241,.2)] transition hover:brightness-110">Send message <ArrowUpRight size={16}/></button></form></div></section>;
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [status, setStatus] = useState("The form prepares a draft in your email application.");
+  const [sending, setSending] = useState(false);
+
+  const clearError = (field: keyof FormErrors) => setErrors(current => ({ ...current, [field]: undefined }));
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const values = Object.fromEntries(new FormData(form).entries()) as Record<string, string>;
+    const nextErrors: FormErrors = {};
+    if (!values.name?.trim()) nextErrors.name = "Please enter your name.";
+    if (!values.email?.trim()) nextErrors.email = "Please enter your email address.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email)) nextErrors.email = "Please enter a valid email address.";
+    if (!values.subject?.trim()) nextErrors.subject = "Please add a subject.";
+    if (!values.message?.trim()) nextErrors.message = "Please write a message.";
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) {
+      setStatus("Please review the highlighted fields.");
+      return;
+    }
+    setSending(true);
+    setStatus("Opening your email application with a prepared draft…");
+    const body = `From: ${values.name} (${values.email})\n\n${values.message}`;
+    const target = `${portfolio.email}?subject=${encodeURIComponent(values.subject)}&body=${encodeURIComponent(body)}`;
+    window.setTimeout(() => {
+      window.location.href = target;
+      setSending(false);
+    }, 180);
+  };
+
+  const fields = [
+    { label: "Name", name: "name", type: "text", autoComplete: "name" },
+    { label: "Email", name: "email", type: "email", autoComplete: "email" },
+    { label: "Subject", name: "subject", type: "text", autoComplete: "off", full: true }
+  ] as const;
+
+  return (
+    <section id="contact" data-omega-section className={`${styles.section} ${styles.sectionAlt}`}>
+      <div className={`container-x ${styles.contactGrid}`}>
+        <Reveal direction="left">
+          <div className={styles.contactIntro}>
+            <div className={styles.sectionIndex}><span>08</span><i/><span>Connection hub</span></div>
+            <h2>Let&apos;s build something useful.</h2>
+            <p>Have an opportunity, a project idea, or a question about what I&apos;m learning? Reach me directly or prepare a message through the form.</p>
+            <div className={styles.contactLinks}>
+              <a href={portfolio.github} target="_blank" rel="noreferrer" className={`${styles.contactLink} focus-ring`}><Icon name="github" size={18}/><span>github.com/Tashin90</span><ExternalLink size={13}/></a>
+              <a href={portfolio.linkedin} target="_blank" rel="noreferrer" className={`${styles.contactLink} focus-ring`}><Icon name="linkedin" size={18}/><span>LinkedIn profile</span><ExternalLink size={13}/></a>
+              <a href={portfolio.email} className={`${styles.contactLink} focus-ring`}><Icon name="mail" size={18}/><span>{portfolio.emailLabel}</span></a>
+            </div>
+          </div>
+        </Reveal>
+        <Reveal direction="right">
+          <form onSubmit={submit} noValidate className={styles.contactForm}>
+            <div className={styles.formTop}><strong>Compose a message</strong><span>MAILTO / SECURE DRAFT</span></div>
+            <div className={styles.formGrid}>
+              {fields.map(field => <div className={`${styles.field} ${"full" in field && field.full ? styles.fieldFull : ""}`} key={field.name}><label htmlFor={`contact-${field.name}`}>{field.label}</label><input id={`contact-${field.name}`} name={field.name} type={field.type} autoComplete={field.autoComplete} aria-invalid={Boolean(errors[field.name])} aria-describedby={errors[field.name] ? `error-${field.name}` : undefined} onChange={() => clearError(field.name)}/>{errors[field.name] && <span id={`error-${field.name}`} className={styles.fieldError}>{errors[field.name]}</span>}</div>)}
+              <div className={`${styles.field} ${styles.fieldFull}`}><label htmlFor="contact-message">Message</label><textarea id="contact-message" name="message" rows={5} aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? "error-message" : undefined} onChange={() => clearError("message")}/>{errors.message && <span id="error-message" className={styles.fieldError}>{errors.message}</span>}</div>
+            </div>
+            <div className={styles.formFooter}><p className={styles.formStatus} role="status">{status}</p><button type="submit" disabled={sending} className={`${styles.submitButton} focus-ring`}>{sending ? <LoaderCircle className="animate-spin" size={16}/> : <Send size={15}/>}Open email draft</button></div>
+          </form>
+        </Reveal>
+      </div>
+    </section>
+  );
 }
 
-export function Footer() { return <footer className="border-t border-white/10 bg-[#070a13] py-8"><div className="container-x flex flex-col justify-between gap-5 text-xs text-slate-500 sm:flex-row"><div><p className="font-medium text-slate-200">{portfolio.name}</p><p className="mt-1">{portfolio.role}</p></div><div className="flex flex-wrap gap-x-5 gap-y-2"><a href="#home" className="hover:text-white">Home</a><a href="#projects" className="hover:text-white">Projects</a><a href={portfolio.github} target="_blank" rel="noreferrer" className="hover:text-white">GitHub</a><a href={portfolio.linkedin} target="_blank" rel="noreferrer" className="hover:text-white">LinkedIn</a><a href={portfolio.email} className="hover:text-white">Email</a><a href={portfolio.resume} className="hover:text-white">Resume</a></div><p>© {new Date().getFullYear()} · Built with curiosity.</p></div></footer>; }
+export function Footer() {
+  return (
+    <footer className={styles.footer}>
+      <div className={`container-x ${styles.footerInner}`}>
+        <div className={styles.footerIdentity}><strong>{portfolio.name}</strong><span>{portfolio.role}</span></div>
+        <nav className={styles.footerLinks} aria-label="Footer navigation"><a href="#home">Home</a><a href="#projects">Projects</a><a href="#research">Research</a><a href={portfolio.github} target="_blank" rel="noreferrer">GitHub</a><a href={portfolio.linkedin} target="_blank" rel="noreferrer">LinkedIn</a><a href={portfolio.resume}>Resume</a></nav>
+        <p className={styles.footerMeta}>© {new Date().getFullYear()} · Built with curiosity.</p>
+      </div>
+    </footer>
+  );
+}
