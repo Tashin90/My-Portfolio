@@ -129,14 +129,14 @@ export default function Hero() {
             <p className={styles.description}>{portfolio.description}</p>
 
             <div className={styles.actions}>
-              <a href="#projects" className={`${styles.primaryAction} focus-ring`}>Explore projects <ArrowUpRight size={16}/></a>
-              <a href={portfolio.resume} className={`${styles.secondaryAction} focus-ring`}><Download size={15}/> Download CV</a>
+              <a href="#projects" className={`${styles.primaryAction} focus-ring`}><span className={styles.buttonLabel}>Explore Projects</span><ArrowUpRight size={18}/><span className={styles.buttonSweep} aria-hidden="true"/></a>
+              <a href={portfolio.resume} className={`${styles.secondaryAction} focus-ring`}><Download size={18}/><span className={styles.buttonLabel}>Download CV</span><span className={styles.buttonSweep} aria-hidden="true"/></a>
             </div>
 
             <div className={styles.contactStrip}>
-              <a href={portfolio.github} target="_blank" rel="noreferrer" className="focus-ring" aria-label="Open GitHub profile"><Icon name="github" size={16}/><span>GitHub</span></a>
-              <a href={portfolio.linkedin} target="_blank" rel="noreferrer" className="focus-ring" aria-label="Open LinkedIn profile"><Icon name="linkedin" size={16}/><span>LinkedIn</span></a>
-              <a href={portfolio.email} className="focus-ring" aria-label={`Email ${portfolio.name}`}><Mail size={16}/><span>Email</span></a>
+              <a href={portfolio.github} target="_blank" rel="noreferrer" className={`${styles.githubButton} focus-ring`} aria-label="Open GitHub profile"><Icon name="github" size={19}/><span>GitHub</span><span className={styles.buttonSweep} aria-hidden="true"/></a>
+              <a href={portfolio.linkedin} target="_blank" rel="noreferrer" className={`${styles.linkedinButton} focus-ring`} aria-label="Open LinkedIn profile"><Icon name="linkedin" size={19}/><span>LinkedIn</span><span className={styles.buttonSweep} aria-hidden="true"/></a>
+              <a href={portfolio.email} className={`${styles.emailButton} focus-ring`} aria-label={`Email ${portfolio.name}`}><Mail size={19}/><span>Email</span><span className={styles.buttonSweep} aria-hidden="true"/></a>
             </div>
           </section>
 

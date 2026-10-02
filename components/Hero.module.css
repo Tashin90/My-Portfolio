@@ -242,13 +242,21 @@
 .name {
   max-width: 440px;
   margin: 0;
-  color: #f7fbff;
+  color: #f8f9ff;
   font-size: clamp(2rem, 2.6vw, 3.1rem);
   font-weight: 620;
   line-height: 1.02;
   letter-spacing: -.055em;
   text-wrap: balance;
-  text-shadow: 0 0 35px color-mix(in srgb, var(--accent) 16%, transparent);
+  background: linear-gradient(105deg, #f8f9ff, #b799ff, #569cff, #69eaff, #83ffe4, #f8f9ff);
+  background-size: 300% 100%;
+  background-position: 0% 50%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 16px color-mix(in srgb, var(--accent) 13%, transparent));
+  animation: nameAurora 8.2s ease-in-out infinite;
+  transition: filter .3s ease, background-size .4s ease;
 }
 
 .statementEngine {
@@ -357,31 +365,104 @@
 }
 
 .actions a {
+  --button-border: linear-gradient(115deg, #69f1ff, #4e9cff 55%, #786dff);
+  --button-fill: linear-gradient(120deg, #61f5ff 0%, #54d9ff 34%, #4d9cff 70%, #4677ff 100%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 9px;
   min-width: 0;
-  min-height: 43px;
-  padding: 0 17px;
-  border: 1px solid transparent;
-  font-size: 11px;
-  font-weight: 700;
+  min-height: 46px;
+  padding: 0 18px;
+  position: relative;
+  isolation: isolate;
+  border: 0;
+  font-size: 11.5px;
+  font-weight: 750;
   letter-spacing: .02em;
-  transition: transform .25s ease, border-color .25s ease, background-color .25s ease, box-shadow .25s ease;
+  white-space: nowrap;
+  background: transparent;
+  transition: transform .25s ease, color .25s ease, filter .25s ease;
+}
+
+.actions a::before,
+.actions a::after,
+.contactStrip a::before,
+.contactStrip a::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+
+.actions a::before,
+.contactStrip a::before {
+  inset: 0;
+  z-index: -2;
+  background: var(--button-border);
+  filter: drop-shadow(0 0 8px var(--button-glow, color-mix(in srgb, var(--accent) 24%, transparent)));
+  transition: filter .25s ease, opacity .25s ease;
+}
+
+.actions a::after,
+.contactStrip a::after {
+  inset: 1px;
+  z-index: -1;
+  background: var(--button-fill);
+}
+
+.actions a > svg,
+.actions a > .buttonLabel,
+.contactStrip a > svg,
+.contactStrip a > span:not(.buttonSweep) {
+  position: relative;
+  z-index: 2;
+}
+
+.actions a > svg,
+.contactStrip a > svg {
+  flex: 0 0 auto;
+  transition: transform .25s cubic-bezier(.2,.75,.25,1), color .25s ease, filter .25s ease;
+}
+
+.buttonSweep {
+  position: absolute;
+  inset: 1px;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+  clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
+}
+
+.buttonSweep::before {
+  content: "";
+  position: absolute;
+  inset: -35% auto -35% -48%;
+  width: 27%;
+  opacity: 0;
+  transform: skewX(-24deg) translateX(-220%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.68), transparent);
+  mix-blend-mode: screen;
+  animation: cyberSweep 4.8s ease-in-out infinite;
 }
 
 .primaryAction {
   color: #021018;
-  background: var(--accent);
-  box-shadow: 0 0 30px color-mix(in srgb, var(--accent) 20%, transparent);
-  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  --button-glow: rgba(70, 211, 255, .33);
+  filter: drop-shadow(0 0 10px rgba(73, 218, 255, .18));
 }
 
-.secondaryAction {
-  color: #d9e5f4;
-  border-color: color-mix(in srgb, var(--accent) 28%, transparent) !important;
-  background: color-mix(in srgb, var(--accent) 6%, rgba(3,8,20,.68));
+.actions .secondaryAction {
+  --button-border: linear-gradient(115deg, color-mix(in srgb, var(--accent) 82%, #69eaff), #569cff 56%, color-mix(in srgb, var(--accent-alt) 70%, #83ffe4));
+  --button-fill: linear-gradient(120deg, rgba(9,25,48,.96), rgba(4,12,29,.97) 58%, rgba(8,21,42,.96));
+  --button-glow: color-mix(in srgb, var(--accent) 26%, transparent);
+  color: #f5fbff;
+}
+
+.secondaryAction .buttonSweep::before {
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent) 30%, rgba(255,255,255,.5)), transparent);
+  animation-delay: 1.35s;
 }
 
 .contactStrip {
@@ -391,19 +472,48 @@
 }
 
 .contactStrip a {
+  --social-accent: #69eaff;
+  --button-border: linear-gradient(115deg, color-mix(in srgb, var(--social-accent) 82%, white), color-mix(in srgb, var(--social-accent) 35%, #182b50));
+  --button-fill: linear-gradient(120deg, color-mix(in srgb, var(--social-accent) 8%, rgba(8,19,39,.96)), rgba(4,10,25,.97));
+  --button-glow: color-mix(in srgb, var(--social-accent) 18%, transparent);
   display: inline-flex;
+  flex: 1 1 0;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 9px;
   min-width: 0;
-  min-height: 34px;
-  padding: 0 10px;
-  color: #8798b0;
-  border: 1px solid rgba(255,255,255,.075);
-  font: 9px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+  min-height: 41px;
+  padding: 0 11px;
+  position: relative;
+  isolation: isolate;
+  color: #d8e6f6;
+  border: 0;
+  font: 650 11px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
   text-transform: uppercase;
-  letter-spacing: .08em;
-  transition: color .25s ease, border-color .25s ease, background-color .25s ease;
+  letter-spacing: .07em;
+  white-space: nowrap;
+  background: transparent;
+  transition: color .25s ease, transform .25s ease, filter .25s ease;
+}
+
+.contactStrip a > svg {
+  color: var(--social-accent);
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--social-accent) 32%, transparent));
+}
+
+.contactStrip .githubButton { --social-accent: #ad8cff; }
+.githubButton::before { background: linear-gradient(115deg, #b799ff, #69eaff 70%, rgba(105,234,255,.2)); }
+.contactStrip .linkedinButton { --social-accent: #569cff; }
+.linkedinButton::before { background: linear-gradient(115deg, #569cff, #69eaff 72%, rgba(86,156,255,.18)); }
+.contactStrip .emailButton { --social-accent: #83ffe4; }
+.emailButton::before { background: linear-gradient(115deg, #83ffe4, #48dce5 72%, rgba(131,255,228,.18)); }
+
+.contactStrip a:nth-child(2) .buttonSweep::before { animation-delay: .8s; }
+.contactStrip a:nth-child(3) .buttonSweep::before { animation-delay: 1.6s; }
+
+.buttonLabel {
+  display: inline-flex;
+  align-items: center;
 }
 
 .coreZone {
@@ -1074,10 +1184,26 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .actions a:hover { transform: translateY(-3px); }
-  .primaryAction:hover { box-shadow: 0 8px 38px color-mix(in srgb, var(--accent) 30%, transparent); }
-  .secondaryAction:hover { color: white; border-color: var(--accent) !important; background: color-mix(in srgb, var(--accent) 12%, rgba(3,8,20,.7)); }
-  .contactStrip a:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 35%, transparent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+  .name:hover {
+    background-size: 255% 100%;
+    filter: drop-shadow(0 0 20px color-mix(in srgb, var(--accent) 20%, transparent));
+  }
+  .actions a:hover,
+  .contactStrip a:hover {
+    transform: translateY(-3px);
+  }
+  .actions a:hover::before,
+  .contactStrip a:hover::before,
+  .actions a:focus-visible::before,
+  .contactStrip a:focus-visible::before {
+    filter: drop-shadow(0 0 13px var(--button-glow)) drop-shadow(0 0 4px var(--button-glow));
+  }
+  .primaryAction:hover { filter: drop-shadow(0 7px 14px rgba(57, 181, 255, .26)); }
+  .secondaryAction:hover { color: #fff; filter: drop-shadow(0 7px 14px color-mix(in srgb, var(--accent) 18%, transparent)); }
+  .contactStrip a:hover { color: #fff; filter: drop-shadow(0 6px 12px color-mix(in srgb, var(--social-accent) 15%, transparent)); }
+  .primaryAction:hover > svg { transform: translate(2px, -2px) rotate(4deg); }
+  .secondaryAction:hover > svg { transform: translateY(2px); }
+  .contactStrip a:hover > svg { transform: translateY(-1px) scale(1.08); }
   .modeOptions button:hover { color: white; border-color: color-mix(in srgb, var(--swatch) 32%, transparent); }
   .pauseButton:hover { color: var(--accent); }
   .neuralPanel:hover {
@@ -1086,6 +1212,29 @@
     box-shadow: 0 15px 45px color-mix(in srgb, var(--accent) 10%, rgba(0,0,0,.25));
   }
   .identityCapsule:hover .identityImage img { transform: scale(1.12); filter: saturate(1.08) contrast(1.03); }
+}
+
+.actions a:active,
+.contactStrip a:active {
+  transform: translateY(-1px) scale(.985);
+}
+
+.actions a:focus-visible,
+.contactStrip a:focus-visible {
+  outline-color: #83ffe4;
+  outline-offset: 4px;
+}
+
+@keyframes nameAurora {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes cyberSweep {
+  0%, 10% { opacity: 0; transform: skewX(-24deg) translateX(-220%); }
+  18% { opacity: .78; }
+  38% { opacity: 0; transform: skewX(-24deg) translateX(760%); }
+  100% { opacity: 0; transform: skewX(-24deg) translateX(760%); }
 }
 
 @keyframes auroraDrift {
@@ -1362,7 +1511,9 @@
   }
   .imageScan,
   .corePulse,
-  .neuralPanel::after {
+  .neuralPanel::after,
+  .buttonSweep {
     display: none;
   }
+  .name { background-position: 42% 50%; }
 }
