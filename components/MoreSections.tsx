@@ -184,7 +184,7 @@ export function Contact() {
 
 export function Footer() {
   return (
-    <footer className={styles.footer}>
+    <footer className={`${styles.footer} omega-site-footer`}>
       <div className={`container-x ${styles.footerInner}`}>
         <div className={styles.footerIdentity}><strong>{portfolio.name}</strong><span>{portfolio.role}</span></div>
         <nav className={styles.footerLinks} aria-label="Footer navigation"><a href="#home">Home</a><a href="#projects">Projects</a><a href="#research">Research</a><a href={portfolio.github} target="_blank" rel="noreferrer">GitHub</a><a href={portfolio.linkedin} target="_blank" rel="noreferrer">LinkedIn</a><a href={portfolio.resume}>Resume</a></nav>

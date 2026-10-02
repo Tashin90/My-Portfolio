@@ -11,8 +11,7 @@ export default function Navbar() {
 
   useEffect(() => {
     const storedTheme = window.localStorage.getItem("portfolio-theme");
-    const prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-    const useLightTheme = storedTheme ? storedTheme === "light" : prefersLight;
+    const useLightTheme = storedTheme === "light";
     document.documentElement.classList.toggle("light", useLightTheme);
     setLight(useLightTheme);
 
