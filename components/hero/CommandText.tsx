@@ -4,9 +4,22 @@ import { useEffect, useRef, useState } from "react";
 import { portfolio } from "@/data/portfolio";
 import styles from "../Hero.module.css";
 
+const statements = [
+  { lead: "Build", signal: "with curiosity." },
+  { lead: "Create", signal: "with logic." },
+  { lead: "Research", signal: "with purpose." },
+  { lead: "Engineer", signal: "with intent." }
+] as const;
+
+const roles = portfolio.role
+  .split("·")
+  .map(role => role.replaceAll("Â", "").trim())
+  .filter(Boolean);
+
 function useMotionActivity() {
   const ref = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
+
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
@@ -14,57 +27,105 @@ function useMotionActivity() {
     const hero = node.closest<HTMLElement>("#home");
     let visible = false;
     const sync = () => setActive(visible && !document.hidden && !preference.matches && hero?.dataset.userPaused !== "true");
-    const observer = new IntersectionObserver(entries => { visible = entries[0].isIntersecting; sync(); }); observer.observe(node);
-    preference.addEventListener("change", sync); document.addEventListener("visibilitychange", sync);
+    const observer = new IntersectionObserver(entries => {
+      visible = entries[0].isIntersecting;
+      sync();
+    });
+    observer.observe(node);
+    preference.addEventListener("change", sync);
+    document.addEventListener("visibilitychange", sync);
     hero?.addEventListener("neural-pause", sync);
-    return () => { observer.disconnect(); preference.removeEventListener("change", sync); document.removeEventListener("visibilitychange", sync); hero?.removeEventListener("neural-pause", sync); };
+    return () => {
+      observer.disconnect();
+      preference.removeEventListener("change", sync);
+      document.removeEventListener("visibilitychange", sync);
+      hero?.removeEventListener("neural-pause", sync);
+    };
   }, []);
+
   return { ref, active };
 }
 
-const roles = portfolio.role.split(" · ");
+export function StatementEngine() {
+  const { ref, active } = useMotionActivity();
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (!active) return;
+    const timer = window.setInterval(() => setIndex(value => (value + 1) % statements.length), 3600);
+    return () => window.clearInterval(timer);
+  }, [active]);
+
+  const statement = statements[active ? index : 0];
+  return (
+    <div ref={ref} className={styles.statementEngine} aria-live="polite">
+      <span className="sr-only">{statement.lead} {statement.signal}</span>
+      <div aria-hidden="true" key={`${statement.lead}-${statement.signal}`} className={styles.statementFrame}>
+        <span className={styles.statementLead}>{statement.lead}</span>
+        <span className={styles.statementSignal}>{statement.signal}</span>
+      </div>
+      <div className={styles.statementIndex} aria-hidden="true">
+        {statements.map((_, itemIndex) => <i key={itemIndex} data-active={itemIndex === index}/>) }
+      </div>
+    </div>
+  );
+}
 
 export function RoleEngine() {
   const { ref, active } = useMotionActivity();
-  const [text, setText] = useState<string>(roles[0]);
+  const [index, setIndex] = useState(0);
+
   useEffect(() => {
-    if (!active) return;
-    let index = 0, length = roles[0].length, deleting = true;
-    let timer: ReturnType<typeof setTimeout>;
-    const step = () => {
-      const role = roles[index];
-      length += deleting ? -1 : 1;
-      setText(role.slice(0, Math.max(0, length)));
-      let delay = deleting ? 45 : 90;
-      if (length <= 0) { deleting = false; index = (index + 1) % roles.length; delay = 350; }
-      else if (length >= role.length) { deleting = true; delay = 2300; }
-      timer = setTimeout(step, delay);
-    };
-    setText(roles[0]); timer = setTimeout(step, 2300);
-    return () => clearTimeout(timer);
+    if (!active || roles.length < 2) return;
+    const timer = window.setInterval(() => setIndex(value => (value + 1) % roles.length), 2600);
+    return () => window.clearInterval(timer);
   }, [active]);
-  return <div ref={ref} className={styles.roleEngine}><span className="sr-only">{portfolio.role}</span><span aria-hidden="true" className={styles.roleVisual}><span className={styles.promptSymbol}>~/</span> {active ? text : roles[0]}<span className={styles.cursor}>▌</span></span></div>;
+
+  const role = roles[active ? index : 0] ?? portfolio.role;
+  return (
+    <div ref={ref} className={styles.roleEngine}>
+      <span className={styles.rolePrefix} aria-hidden="true">ACTIVE ROLE</span>
+      <span className={styles.roleViewport} aria-live="polite">
+        <span key={role} className={styles.roleText}>{role}</span>
+      </span>
+    </div>
+  );
 }
 
-const terminalSteps = [
-  { command: "npm run dev", output: "Exploring interfaces with React + Next.js" },
-  { command: "git status", output: "Learning through real projects · Git + GitHub" },
-  { command: "npm run build", output: "Building practical software, one iteration at a time" },
-  { command: "// research interests", output: "Machine Learning · AI · Academic Research" }
+const terminalLines = [
+  { prompt: "system", message: "initializing portfolio interface..." },
+  { prompt: "index", message: `loading ${portfolio.projects.length} featured projects...` },
+  { prompt: "links", message: "syncing profile links..." },
+  { prompt: "status", message: "available for opportunities" },
+  { prompt: "modules", message: "web / software / research" }
 ] as const;
 
 export function DeveloperTerminal() {
   const { ref, active } = useMotionActivity();
-  const [index, setIndex] = useState(0);
+  const [cursor, setCursor] = useState(0);
+
   useEffect(() => {
     if (!active) return;
-    const timer = setInterval(() => setIndex(value => (value + 1) % terminalSteps.length), 5600);
-    return () => clearInterval(timer);
+    const timer = window.setInterval(() => setCursor(value => (value + 1) % terminalLines.length), 1500);
+    return () => window.clearInterval(timer);
   }, [active]);
-  const step = terminalSteps[active ? index : 0];
-  return <div ref={ref} className={styles.terminal} aria-label="Decorative developer terminal simulation">
-    <div className={styles.terminalBar}><span aria-hidden="true" className={styles.terminalDots}><i/><i/><i/></span><span>tashin / workspace</span><span className={styles.simulationLabel}>SIMULATION</span></div>
-    <span className="sr-only">An illustrative terminal about web development, Git, and research interests. No commands are executed.</span>
-    <div aria-hidden="true" key={step.command} className={styles.terminalOutput}><p><span className={styles.promptSymbol}>❯</span> {step.command}<span className={styles.cursor}>▌</span></p><p>{step.output}</p></div>
-  </div>;
+
+  return (
+    <section ref={ref} className={styles.terminal} aria-label="Illustrative portfolio system activity">
+      <div className={styles.terminalHeader}>
+        <span className={styles.terminalLights} aria-hidden="true"><i/><i/><i/></span>
+        <span>OMEGA://portfolio/activity</span>
+        <span className={styles.simulationBadge}>SIMULATED FEED</span>
+      </div>
+      <div className={styles.terminalBody}>
+        {terminalLines.map((line, lineIndex) => (
+          <p key={line.prompt} data-active={lineIndex === cursor}>
+            <span>[{line.prompt}]</span>
+            <span>{line.message}</span>
+            {lineIndex === cursor && <i aria-hidden="true"/>}
+          </p>
+        ))}
+      </div>
+    </section>
+  );
 }
