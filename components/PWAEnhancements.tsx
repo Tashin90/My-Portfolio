@@ -16,7 +16,9 @@ export default function PWAEnhancements() {
   useEffect(() => {
     // Test offline behavior with `npm run build` and `npm start`; avoid caching dev bundles.
     if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" }).catch(error => console.warn("Portfolio service worker registration failed:", error));
+      navigator.serviceWorker.register("/sw.js", { scope: "/", updateViaCache: "none" })
+        .then(registration => registration.update())
+        .catch(error => console.warn("Portfolio service worker registration failed:", error));
     }
     const standalone = window.matchMedia("(display-mode: standalone)").matches || ("standalone" in navigator && Boolean((navigator as Navigator & { standalone?: boolean }).standalone));
     let dismissed = false;

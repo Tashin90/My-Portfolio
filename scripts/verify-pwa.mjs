@@ -243,6 +243,9 @@ if (process.argv.includes("--generate-icons")) {
   try {
     await storagePage.navigate();
     await storagePage.waitFor("!!navigator.serviceWorker.controller");
+    // A native beforeinstallprompt arrives after the page has settled. Give
+    // hydration the same opportunity before dispatching the synthetic event.
+    await delay(1000);
     await storagePage.evaluate("(() => { const event = new Event('beforeinstallprompt'); event.prompt = async () => { throw new Error('Prompt unavailable'); }; event.userChoice = Promise.resolve({ outcome: 'dismissed' }); dispatchEvent(event); })()");
     await storagePage.waitFor("!!document.querySelector('[aria-label=\"Install portfolio app\"]')");
     await storagePage.evaluate("document.querySelector('[aria-label=\"Dismiss install prompt\"]').click()");

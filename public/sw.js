@@ -1,4 +1,4 @@
-const VERSION = "tashin-portfolio-v2";
+const VERSION = "tashin-portfolio-v3";
 const SHELL = `${VERSION}-shell`;
 const ASSETS = `${VERSION}-assets`;
 const LOCAL_ASSETS = [
@@ -40,7 +40,9 @@ self.addEventListener("activate", event => {
 async function networkFirst(request, cacheName, navigation = false) {
   const cache = await caches.open(cacheName);
   try {
-    const response = await fetch(request);
+    // Revalidate mutable app-shell responses instead of accepting a stale
+    // browser HTTP-cache entry after a deployment.
+    const response = await fetch(request, { cache: "no-cache" });
     if (response.ok && (!navigation || response.headers.get("content-type")?.includes("text/html"))) {
       await cache.put(request, response.clone()).catch(() => undefined);
     }

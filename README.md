@@ -4,7 +4,7 @@ CSE Student, Web Developer, and Aspiring Researcher.
 
 A personal portfolio showcasing practical software projects, a growing computer science foundation, and academic research interests. Built with Next.js and available as an installable Progressive Web App (PWA).
 
-[Live Portfolio](https://my-portfolio-five-rouge-88hhc6zcpt.vercel.app) · [GitHub](https://github.com/Tashin90) · [LinkedIn](https://www.linkedin.com/in/md-naimul-haque-tashin-1a7917344/) · [Email](mailto:naimulhaque217@gmail.com)
+[Live Portfolio](https://naimulhaque.vercel.app) · [GitHub](https://github.com/Tashin90) · [LinkedIn](https://www.linkedin.com/in/md-naimul-haque-tashin-1a7917344/) · [Email](mailto:naimulhaque217@gmail.com)
 
 ![Next.js 14](https://img.shields.io/badge/Next.js-14-000000?logo=nextdotjs&logoColor=white)
 ![React 18](https://img.shields.io/badge/React-18-149ECA?logo=react&logoColor=white)
@@ -111,7 +111,7 @@ Page navigation and local assets try the network first and fall back to cached r
 
 ### Install on Android
 
-1. Open the [Live Portfolio](https://my-portfolio-five-rouge-88hhc6zcpt.vercel.app) in Android Chrome over HTTPS.
+1. Open the [Live Portfolio](https://naimulhaque.vercel.app) in Android Chrome over HTTPS.
 2. When available, select **Install** on the portfolio's install card, or use Chrome's **Install app / Add to Home screen** menu.
 3. Confirm installation and launch the portfolio from its app icon.
 

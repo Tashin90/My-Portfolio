@@ -5,6 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Md. Naimul Haque Tashin Portfolio",
     short_name: "Tashin Portfolio",
     description: "Md. Naimul Haque Tashin — CSE Student, Web Developer, and Aspiring Researcher.",
+    id: "/",
     start_url: "/",
     scope: "/",
     display: "standalone",
